@@ -35,20 +35,16 @@ int travel_list::add_day(const client & in_client)
 	}
 
 	daynode * current = head;
-	//int count = 0;
 	bool found = false;
 	while (current && !found)
 	{
 		if (strcmp(current->name, in_client.c_day) == 0)
 		{
-			//++count;
 			found = true;
 		}
 		current = current->next;
 	}
 
-	//if (count > 0)
-	//	return 1;
 	if (found)
 		return 2;
 
@@ -83,7 +79,7 @@ int travel_list::add_activity(client & in_client)
 	while (current)
 	{
 		if (strcmp(current->name, in_client.c_day) == 0)
-			current->head->data.copy_act(in_client);
+			current->head->activities->copy_act(in_client);
 		current = current->next;
 
 	}
@@ -95,31 +91,49 @@ int travel_list::add_activity(client & in_client)
 activity_list::activity_list()
 {
 	head = nullptr;
-	tail = nullptr;
 }
 activity_list::~activity_list()
 {
 }
-int activity_list::copy__act(client & in_client)
+int activity_list::copy_act(const client & in_client)
 {
 
-//	if (strcmp(head->name, in_day) == 0)
-//	{
 	if (!head)
 	{
 		head = new activitynode;
-		tail = head;
 		head->next = nullptr;
-		head->time = in.time;
+		head->time = in_client.c_time;
 		head->activity_name = new char [strlen(in_client.c_act) + 1];
 		strcpy(head->activity_name, in_client.c_act);
 		head->location = new char [strlen(in_client.c_locat) + 1];
 		strcpy(head->location, in_client.c_locat);
 		head->description = new char [strlen(in_client.c_desc) + 1];
 		strcpy(head->description, in_client.c_desc);
-		return 1;
+		return 0;
 	}
-//	return 0;
+
+	bool found = false;
+	activitynode * current = head;
+	activitynode * previous = head;
+	while (current && !found)
+	{
+		if (in_client.c_time < current->time)
+			found = true;
+		previous = current;
+		current = current->next;
+	}
+	
+	previous->next = new activitynode;
+	previous = previous->next;
+	previous->next = current;
+	previous->time = in_client.c_time;
+	previous->activity_name = new char [strlen(in_client.c_act) + 1];
+	strcpy(previous->activity_name, in_client.c_act);
+	previous->location = new char [strlen(in_client.c_locat) + 1];
+	strcpy(previous->location, in_client.c_locat);
+	previous->description = new char [strlen(in_client.c_desc) + 1];
+	strcpy(previous->description, in_client.c_desc);
+	return 0;
 }
 
 int activity_list::find_act_day(char matching_activity[])

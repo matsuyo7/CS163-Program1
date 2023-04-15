@@ -9,8 +9,6 @@ using namespace std;
 int main()
 {
 	travel_list travel;
-	//activity_list my_act;
-	activity one_activity;
 	client one_client;
 	int option {0};
 	int added {0};

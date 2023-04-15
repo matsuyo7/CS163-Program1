@@ -11,20 +11,6 @@
 int const SIZE {200};
 
 //Structs
-/*struct day
-{
-	char * name;
-};*/
-
-
-struct activity
-{
-	int time;	//the time of the activity
-	char * activity_name;	//name of the activity
-	char * location; 	//location of the activity
-	char * description;	//description of the activity
-};
-
 struct daynode
 {
 	char * name;		//name of the day of the week
@@ -33,12 +19,12 @@ struct daynode
 };
 
 struct activitynode
-{/*
+{
 	int time;	//the time of the activity
 	char * activity_name;	//name of the activity
 	char * location; 	//location of the activity
-	char * description;	//description of the activity*/
-	activity data;
+	char * description;	//description of the activity
+	class activity_list * activities;
 	activitynode * next;	//a next pointer for the activity node
 };
 
@@ -71,12 +57,10 @@ class activity_list
 	public:
 		activity_list();	//constructor
 		~activity_list();	//destructor
-		/*int add_activity(activity & act_to_add)*/	//add a new activity to the day passing the struct and returning a number for error or success
-		int copy_act(client & in_client);	//add a new activity to the day by passing the needed info and returning a number for error or success
+		int copy_act(const client & in_client);	//add a new activity to the day by passing the needed info and returning a number for error or success
 		int find_act_day(char matching_activity[]);	//pass in the activity to find the day it has the activity and display it, return success or error
 	private:
 		activitynode * head;
-		activitynode * tail;
 };
 
 //Functions
