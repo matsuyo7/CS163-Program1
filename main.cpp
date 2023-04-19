@@ -9,11 +9,16 @@ using namespace std;
 int main()
 {
 	travel_list travel;
+	//activity_list activities;
 	client one_client;
 	int option {0};
 	int added {0};
 	int display {0};
 	int added_act {0};
+	char rday[SIZE];
+	char aday[SIZE];
+	int see {0};
+	int remove {0};
 	char again {'y'};
 
 	cout << "\n***TRAVEL PLANNING***"
@@ -41,18 +46,19 @@ int main()
 		}
 		if (option == 2)
 		{
-			display = travel.display_all();
-			if (display == 0)
-				cout << "\nNothing to display" << endl;
-		}
-		if (option == 3)
-		{
 			cout << "\nWhat day do you want to add the activity?: ";
 			cin.get(one_client.c_day, SIZE, '\n');
 			cin.ignore(100, '\n');
-			cout << "\n\nWhat time do you want to add the activity (24hr cycle): ";
-			cin >> one_client.c_time;
-			cin.ignore(100, '\n');
+			one_client.c_day[0] = toupper(one_client.c_day[0]);
+			do
+			{
+				cout << "\n\nWhat time do you want to add the activity (24hr cycle): ";
+				cin >> one_client.c_time;
+				cin.ignore(100, '\n');
+
+				if (one_client.c_time < 1 || one_client.c_time > 24)
+					cout << "\nTime is not within 24hr" << endl;
+			} while (one_client.c_time < 1 || one_client.c_time > 24);
 			cout << "\n\nWhat's the name of the acivity?: ";
 			cin.get(one_client.c_act, SIZE, '\n');
 			cin.ignore(100, '\n');
@@ -62,11 +68,40 @@ int main()
 			cout << "\n\nDescription of activity: ";
 			cin.get(one_client.c_desc, SIZE, '\n');
 			cin.ignore(100, '\n');
+			//activities.copy_act(one_client);
 			added_act = travel.add_activity(one_client);
 			if (added_act == 1)
 				cout << "\nAdded activity" << endl;
 			else
 				cout << "\nActivity not added" << endl;
+		}
+		if (option == 3)
+		{
+			//activities.display_act();
+			display = travel.display_all();
+			if (display == 0)
+				cout << "\nNothing to display" << endl;
+		}
+		if (option == 4)
+		{
+			cout << "\nWhat day do you want to see the activities: ";
+			cin.get(aday, SIZE, '\n');
+			cin.ignore(100, '\n');
+			see = travel.find_act_day(aday);
+			if (see == 0)
+				cout << "\nCouldn't find the day" << endl;
+		}
+
+		if (option == 6)
+		{
+			cout << "\nWhat day do you want to remove?: ";
+			cin.get(rday, SIZE, '\n');
+			cin.ignore(100, '\n');
+			remove = travel.remove_day(rday);
+			if (remove == 1)
+				cout << "\nRemove success" << endl;
+			else
+				cout << "\nUnable to remove" << endl;
 		}
 	/*	do
 		{
@@ -92,7 +127,7 @@ int menu()
 			"\n2. Add an activity"
 			"\n3. Display all days"
 			"\n4. Display all activities for a particular day"
-			"\n5. Display what day as a particular activity"
+			"\n5. Display what day has a particular activity"
 			"\n6. Remove a particular day"
 			"\n7. Quit" 
 			"\n\nPick an option (1-7): ";

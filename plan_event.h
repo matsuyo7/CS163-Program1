@@ -16,6 +16,7 @@ struct daynode
 	char * name;		//name of the day of the week
 	daynode * next;		//a next pointer for the day node
 	struct activitynode * head;	//a head pointer to the list of activities
+	class activity_list * activities;
 };
 
 struct activitynode
@@ -24,7 +25,7 @@ struct activitynode
 	char * activity_name;	//name of the activity
 	char * location; 	//location of the activity
 	char * description;	//description of the activity
-	class activity_list * activities;
+	//class activity_list * activities;
 	activitynode * next;	//a next pointer for the activity node
 };
 
@@ -45,7 +46,7 @@ class travel_list
 		int add_day(const client & in_client);	//add a new day to the list by passing the struct and returning a number for error or success
 		int display_all();	//display all of the days and return a number for success or error
 		int add_activity(client & in_client);	//add a new activity to the day by passing the needed info and returning a number for error or success
-		int find_day(char matching_day[]);	//pass in a day from the user to display all activities in that day
+		int remove_day(char matching_day[]);	//pass in a day from the user to display all activities in that day
 		int find_act_day(char matching_activity[]);	//pass in the activity to find the day it has the activity and display it, return success or error
 	private:
 		daynode * head;
@@ -58,10 +59,12 @@ class activity_list
 		activity_list();	//constructor
 		~activity_list();	//destructor
 		int copy_act(const client & in_client);	//add a new activity to the day by passing the needed info and returning a number for error or success
+		int display_act();
 		int find_act_day(char matching_activity[]);	//pass in the activity to find the day it has the activity and display it, return success or error
 	private:
 		activitynode * head;
 };
+
 
 //Functions
 int menu();
