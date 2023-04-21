@@ -7,22 +7,23 @@ using namespace std;
 //for errors or successes.
 
 //Prototypes
-void add_day(travel_list & travel, char day[];
+int menu();
+void add_day(travel_list & travel, char day[]);
 void add_act(travel_list & travel, client & one_client);
-void 
+void all_display(travel_list & travel);
+void see_act(travel_list & travel, char aday[]);
+void remove_day(travel_list & travel, char rday[]);
+
 int main()
 {
 	travel_list travel;
 	//activity_list activities;
 	client one_client;
 	int option {0};
-	int added {0};
-	int display {0};
+	char day[SIZE];
 	int added_act {0};
 	char rday[SIZE];
 	char aday[SIZE];
-	int see {0};
-	int remove {0};
 	char again {'y'};
 
 	cout << "\n***TRAVEL PLANNING***"
@@ -34,78 +35,24 @@ int main()
 		option = menu();
 		if (option == 1)
 		{
-			cout << "\n\nWhat day of the week are you adding?: ";
-			cin.get(one_client.c_day, SIZE, '\n');
-			cin.ignore(100, '\n');
-			one_client.c_day[0] = toupper(one_client.c_day[0]);
-			added = travel.add_day(one_client);
-			if (added == 1)
-				cout << "\n\nAdded day" << endl;
-			else if (added == 2)
-				cout << "\n\nDay already added" << endl;
-			else if (added == 3)
-				cout << "\n\nDay added to the end" << endl;
-			else
-				cerr << "\n\nDay not added" << endl;
+			add_day(travel, day);
 		}
 		if (option == 2)
 		{
-			cout << "\nWhat day do you want to add the activity?: ";
-			cin.get(one_client.c_day, SIZE, '\n');
-			cin.ignore(100, '\n');
-			one_client.c_day[0] = toupper(one_client.c_day[0]);
-			do
-			{
-				cout << "\n\nWhat time do you want to add the activity (24hr cycle): ";
-				cin >> one_client.c_time;
-				cin.ignore(100, '\n');
-
-				if (one_client.c_time < 1 || one_client.c_time > 24)
-					cout << "\nTime is not within 24hr" << endl;
-			} while (one_client.c_time < 1 || one_client.c_time > 24);
-			cout << "\n\nWhat's the name of the acivity?: ";
-			cin.get(one_client.c_act, SIZE, '\n');
-			cin.ignore(100, '\n');
-			cout << "\n\nWhere is it located?: ";
-			cin.get(one_client.c_locat, SIZE, '\n');
-			cin.ignore(100 ,'\n');
-			cout << "\n\nDescription of activity: ";
-			cin.get(one_client.c_desc, SIZE, '\n');
-			cin.ignore(100, '\n');
-			//activities.copy_act(one_client);
-			added_act = travel.add_activity(one_client);
-			if (added_act == 1)
-				cout << "\nAdded activity" << endl;
-			else
-				cout << "\nActivity not added" << endl;
+			add_act(travel, one_client);
 		}
 		if (option == 3)
 		{
-			//activities.display_act();
-			display = travel.display_all();
-			if (display == 0)
-				cout << "\nNothing to display" << endl;
+			all_display(travel);
 		}
 		if (option == 4)
 		{
-			cout << "\nWhat day do you want to see the activities: ";
-			cin.get(aday, SIZE, '\n');
-			cin.ignore(100, '\n');
-			see = travel.find_act_day(aday);
-			if (see == 0)
-				cout << "\nCouldn't find the day" << endl;
+			see_act(travel, aday);
 		}
 
 		if (option == 6)
 		{
-			cout << "\nWhat day do you want to remove?: ";
-			cin.get(rday, SIZE, '\n');
-			cin.ignore(100, '\n');
-			remove = travel.remove_day(rday);
-			if (remove == 1)
-				cout << "\nRemove success" << endl;
-			else
-				cout << "\nUnable to remove" << endl;
+			remove_day(travel, rday);
 		}
 	} while (option != 7);
 
@@ -134,4 +81,90 @@ int menu()
 	} while (option < 1 || option > 7);
 	return option;
 }
+//Ask the user what day they want to add
+void add_day(travel_list & travel, char day[])
+{
+	cout << "\n\nWhat day of the week are you adding?: ";
+	cin.get(day, SIZE, '\n');
+	cin.ignore(100, '\n');
+	day[0] = toupper(day[0]);
+	int added = travel.add_day(day);
+	if (added == 1)
+		cout << "\n\nAdded day" << endl;
+	else if (added == 2)
+		cout << "\n\nDay already added" << endl;
+	else if (added == 3)
+		cout << "\n\nDay added to the end" << endl;
+	else
+		cerr << "\n\nDay not added" << endl;
+}
+//Ask the user what day they want to add the activities to
+void add_act(travel_list & travel, client & one_client)
+{
+	cout << "\nWhat day do you want to add the activity?: ";
+	cin.get(one_client.c_day, SIZE, '\n');
+	cin.ignore(100, '\n');
+	one_client.c_day[0] = toupper(one_client.c_day[0]);
+	bool match = travel.day_match(one_client);
+	if (match)
+	{
+		do
+		{
+			cout << "\n\nWhat time do you want to add the activity (24hr cycle): ";
+			cin >> one_client.c_time;
+			cin.ignore(100, '\n');
 
+			if (one_client.c_time < 1 || one_client.c_time > 24)
+				cout << "\nTime is not within 24hr" << endl;
+		} while (one_client.c_time < 1 || one_client.c_time > 24);
+		cout << "\n\nWhat's the name of the acivity?: ";
+		cin.get(one_client.c_act, SIZE, '\n');
+		cin.ignore(100, '\n');
+		cout << "\n\nWhere is it located?: ";
+		cin.get(one_client.c_locat, SIZE, '\n');
+		cin.ignore(100 ,'\n');
+		cout << "\n\nDescription of activity: ";
+		cin.get(one_client.c_desc, SIZE, '\n');
+		cin.ignore(100, '\n');
+		//activities.copy_act(one_client);
+		int added_act = travel.add_activity(one_client);
+		if (added_act == 1)
+			cout << "\nAdded activity" << endl;
+		else
+			cout << "\nActivity not added" << endl;
+	}
+	else
+		cout << "\nDay not found" << endl;
+}
+//Display the days and the activities to the user
+void all_display(travel_list & travel)
+{
+	//activities.display_act();
+	int display = travel.display_all();
+	if (display == 0)
+		cout << "\nNothing to display" << endl;
+}
+//Display the activities from one day
+void see_act(travel_list & travel, char aday[])
+{
+	cout << "\nWhat day do you want to see the activities: ";
+	cin.get(aday, SIZE, '\n');
+	cin.ignore(100, '\n');
+	aday[0] = toupper(aday[0]);
+	int see = travel.find_act_day(aday);
+	if (see == 0)
+		cout << "\nCouldn't find the day" << endl;
+}
+//Removes a day the user picks
+void remove_day(travel_list & travel, char rday[])
+{
+	cout << "\nWhat day do you want to remove?: ";
+	cin.get(rday, SIZE, '\n');
+	cin.ignore(100, '\n');
+	rday[0] = toupper(rday[0]);
+	int remove = travel.remove_day(rday);
+	if (remove == 1)
+		cout << "\nRemove success" << endl;
+	else
+		cout << "\nUnable to remove" << endl;
+}
