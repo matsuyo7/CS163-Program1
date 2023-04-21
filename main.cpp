@@ -65,7 +65,7 @@ int menu()
 	int option = 0;
 	do
 	{
-		cout << "\n***MENU***"
+		cout << "\n\n***MENU***"
 			"\n1. Add a new day"
 			"\n2. Add an activity"
 			"\n3. Display all days"
