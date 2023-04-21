@@ -29,57 +29,61 @@ travel_list::~travel_list()
 }
 
 //Add a new day to the end of the LLL
-int travel_list::add_day(const client & in_client)
+int travel_list::add_day(char day[])
 {
-	if (in_client.c_day[0] == '\0' || in_client.c_day == nullptr)
+	//If the client sent in the wrong information
+	if (day[0] == '\0' || day == nullptr)
 		return 0;
-
+	//If there's nothing in the list then add a new day
 	if (!head)
 	{
 		head = new daynode;
 		tail = head;
 		head->next = nullptr;
-		head->name = new char[strlen(in_client.c_day) + 1];
-		strcpy(head->name, in_client.c_day);
+		head->name = new char[strlen(day) + 1];
+		strcpy(head->name, day);
 		return 1;
 	}
-
+	//Goes through the list to see if there's already a day in there
 	daynode * current = head;
 	bool found = false;
 	while (current && !found)
 	{
-		if (strcmp(current->name, in_client.c_day) == 0)
+		if (strcmp(current->name, day) == 0)
 		{
 			found = true;
 		}
 		current = current->next;
 	}
-
+	//If the input day matches with the list day then we exit
 	if (found)
 		return 2;
-
+	//Adds a day to the end of the list
 	tail->next = new daynode;
 	tail = tail->next;
 	tail->next = nullptr;
-	tail->name = new char [strlen(in_client.c_day) + 1];
-	strcpy(tail->name, in_client.c_day);
+	tail->name = new char [strlen(day) + 1];
+	strcpy(tail->name, day);
 	return 3;
 }
 
 //Display all the days in the list
 int travel_list::display_all()
 {
-	if (!head || head->name[0] == '\0')
+	if (!head)
 		return 0;
-	daynode * current = head;
-	while (current)
-	{
-		cout << "\n" << current->name;
-		if (current->head)
-			current->activities->display_act();
-		current = current->next;
-	}
+	display_all(head);
 	return 1;
+}
+
+//Displays the days recursively
+int travel_list::display_all(daynode * head)
+{
+	if (!head)
+		return 0;
+	cout << "\n" << head->name;
+	head->activities.display_act();
+	return display_all(head->next);
 }
 
 //Add an activity for a given day at the end of the activity LLL
@@ -89,12 +93,12 @@ int travel_list::add_activity(client & in_client)
 		return 0;
 	daynode * current= head;
 	bool found = false;
+	//Loops through the list
 	while (current)
 	{
 		if (strcmp(current->name, in_client.c_day) == 0)
 		{
-			current->activities = new activity_list;
-			current->activities->copy_act(in_client);
+			current->activities.copy_act(in_client);
 			found = true;
 		}
 		current = current->next;
@@ -105,42 +109,88 @@ int travel_list::add_activity(client & in_client)
 	else
 		return 0;
 }
-
+//Finds a day match with the client's day
+bool travel_list::day_match(client & in_client)
+{
+	if (!head)
+		return false;
+	daynode * current = head;
+	bool match = false;
+	while (current && !match)
+	{
+		if(strcmp(in_client.c_day, current->name) == 0)
+			match = true;
+		current = current->next;
+	}
+	return match;
+}
+//Finds a day to then display the acivities within that day
 int travel_list::find_act_day(char matching_day[])
 {
 	if (!head)
 		return 0;
 	daynode * current = head;
-	while (current)
+	bool found = false;
+	while (current && !found)
 	{
 		if (strcmp(current->name, matching_day) == 0)
-			current->activities->display_act();
+		{
+			found = true;
+		}
 		current = current->next;
 	}
-	return 1;
+	if (found)
+	{
+		current->activities.display_act();
+		return 1;
+	}
+	return 0;
 }
-
+//Finds a match to the day and then removes it and its activities
 int travel_list::remove_day(char matching_day[])
 {
 	if (!head)
 		return 0;
 	daynode * current = head;
-	while (current)
+	daynode * previous = head;
+	daynode * temp = head;
+	bool found = false;
+	while (current && !found)
 	{
 		if (strcmp(current->name, matching_day) == 0)
 		{
-			delete [] current->name;
-			delete current;
+			found = true;
 		}
+		previous = current;
 		current = current->next;
 	}
-	return 1;
+	if (current == head)
+	{
+		current = current->next;
+		head->activities.remove_act();
+		//delete [] head->name;
+		delete head;
+		head = current;
+		return 1;
+	}
+	if (found)
+	{
+		temp = current;
+		current = current->next;
+		//previous->activities.remove_act();
+		//delete [] previous->name;
+		delete temp;
+		previous->next = current;
+		return 1;
+	}
+	return 0;
 }
-
+//Activity constructor to initiate the data members
 activity_list::activity_list()
 {
 	head = nullptr;
 }
+//Activity destructor to deallocate the data members
 activity_list::~activity_list()
 {
 	activitynode * current = head;
@@ -159,6 +209,7 @@ activity_list::~activity_list()
 	}
 	head = nullptr;
 }
+//Adds the activities into the list sorted by the time
 int activity_list::copy_act(const client & in_client)
 {
 
@@ -220,24 +271,53 @@ int activity_list::copy_act(const client & in_client)
 	strcpy(previous->description, in_client.c_desc);
 	return 1;
 }
-
+//Dislpays the activities and is called from the travel_list
 int activity_list::display_act()
 {
 	if (!head)
 		return 0;
-
 	activitynode * current = head;
 	while (current)
 	{
 		cout << "\n" << current->time << ":00"
-			<< "\nActivity: " << current->activity_name
-			<< "\nLocation: " << current->location
-			<< "\nDescription: " << current->description << endl;
+			<< "\tActivity: " << current->activity_name
+			<< "\n\tLocation: " << current->location
+			<< "\n\tDescription: " << current->description << endl;
 		current = current->next;
 	}
 	return 1;
 }
-
+//Displays the activities recursively
+/*int activity_list::display_act(activitynode * head)
+{
+	if (!head)
+		return 0;
+	cout << "\n" << head->time << ":00"
+		<< "\tActivity: " << head->activity_name
+		<< "\n\tLocation: " << head->location
+		<< "\n\tDescription: " << head->description << endl;
+	return display_act(head->next);
+}*/
+//Removes activities within a day
+int activity_list::remove_act()
+{
+	if (!head)
+		return 0;
+	activitynode * current = head;
+	while (head)
+	{
+		current = current->next;
+		//head->time = 0;
+		//delete [] head->activity_name;
+		//delete [] head->location;
+		//delete [] head->description;
+		delete head;
+		head = current;
+	}
+	return 1;
+}
+		
+//Finds a day to match and then displays the activities within the day
 int activity_list::find_act_day(char matching_activity[])
 {return 0;}
 

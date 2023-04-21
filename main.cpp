@@ -6,6 +6,10 @@ using namespace std;
 //to send in information to the ADT to be used, and then be returned numbers
 //for errors or successes.
 
+//Prototypes
+void add_day(travel_list & travel, char day[];
+void add_act(travel_list & travel, client & one_client);
+void 
 int main()
 {
 	travel_list travel;
@@ -103,15 +107,7 @@ int main()
 			else
 				cout << "\nUnable to remove" << endl;
 		}
-	/*	do
-		{
-			cout << "\nDo you want to do it again? (y/n): ";
-			cin >> again;
-			cin.ignore(100, '\n');
-			if (toupper(again) != 'Y' && toupper(again) != 'N')
-				cout << "\nInvalid response, try again" << endl;
-		} while (toupper(again) != 'Y' && toupper(again) != 'N');*/
-	} while (option != 7/* && toupper(again) == 'Y'*/);
+	} while (option != 7);
 
 	return 0;
 }
@@ -138,3 +134,4 @@ int menu()
 	} while (option < 1 || option > 7);
 	return option;
 }
+
