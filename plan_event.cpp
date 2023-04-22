@@ -26,6 +26,7 @@ travel_list::~travel_list()
 		head = current;
 	}
 	head = nullptr;
+	tail = nullptr;
 }
 
 //Add a new day to the end of the LLL
@@ -77,7 +78,7 @@ int travel_list::display_all()
 }
 
 //Displays the days recursively
-int travel_list::display_all(daynode * head)
+int travel_list::display_all(daynode * & head)
 {
 	if (!head)
 		return 0;
@@ -137,53 +138,77 @@ int travel_list::find_act_day(char matching_day[])
 		{
 			found = true;
 		}
-		current = current->next;
+		else
+		{
+			current = current->next;
+		}
 	}
-	if (found)
+	if (found && current)
 	{
 		current->activities.display_act();
 		return 1;
 	}
 	return 0;
 }
+int travel_list::find_day(char matching_act[])
+{
+	if (!head || matching_act[0] == '\0')
+		return 0;
+	daynode * current = head;
+	bool found = false;
+	bool match = false;
+	while (current)
+	{
+		match = current->activities.act_match(matching_act);
+		if (match)
+			found = true;
+		else
+			current = current->next;
+	}
+	if (!found)
+		return 0;
+	cout << current->name << endl;
+	return 1;
+}
+
 //Finds a match to the day and then removes it and its activities
 int travel_list::remove_day(char matching_day[])
 {
+	//if list is empty
 	if (!head)
 		return 0;
 	daynode * current = head;
 	daynode * previous = head;
-	daynode * temp = head;
 	bool found = false;
 	while (current && !found)
 	{
+		//if the name in the list matches the day the client wants to remove
 		if (strcmp(current->name, matching_day) == 0)
 		{
 			found = true;
 		}
-		previous = current;
-		current = current->next;
+		else 
+		{
+			previous = current;
+			current = current->next;
+		}
 	}
+	//If not found
+	if (!found)
+		return 0;
+
+	//if the day they want to remove is the first day
 	if (current == head)
 	{
-		current = current->next;
-		head->activities.remove_act();
-		//delete [] head->name;
-		delete head;
-		head = current;
-		return 1;
+		head = current->next;
 	}
-	if (found)
-	{
-		temp = current;
-		current = current->next;
-		//previous->activities.remove_act();
-		//delete [] previous->name;
-		delete temp;
-		previous->next = current;
-		return 1;
-	}
-	return 0;
+	else
+		previous->next = current->next;
+	//if they found the day to remove
+	current->activities.remove_act();
+	delete [] current->name;
+	delete current;
+	return 1;
 }
 //Activity constructor to initiate the data members
 activity_list::activity_list()
@@ -212,7 +237,7 @@ activity_list::~activity_list()
 //Adds the activities into the list sorted by the time
 int activity_list::copy_act(const client & in_client)
 {
-
+	//If there's nothing
 	if (!head)
 	{
 		head = new activitynode;
@@ -224,41 +249,47 @@ int activity_list::copy_act(const client & in_client)
 		strcpy(head->location, in_client.c_locat);
 		head->description = new char [strlen(in_client.c_desc) + 1];
 		strcpy(head->description, in_client.c_desc);
-		return 0;
+		return 1;
 	}
 
 	bool same = false;
 	bool less = false;
 	activitynode * current = head;
 	activitynode * previous = head;
+	activitynode * temp = head;
 	while (current && !same && !less)
 	{
+		//If the time is the same
 		if (in_client.c_time == current->time)
 			same = true;
+		//if the client's time is less than the current time
 		else if (in_client.c_time < current->time)
 			less = true;
-		previous = current;
-		current = current->next;
+		else
+		{
+			previous = current;
+			current = current->next;
+		}
 	}
-
+	//if the time is the same then return an error
 	if (same)
 		return 1;
-	
+	//if there is only one item in the list and it's less than the time already in the list
 	if (current == head && less)
 	{
-		current = new activitynode;
-		current->next = head;
-		head = current;
-		current->time = in_client.c_time;
-		current->activity_name = new char [strlen(in_client.c_act) + 1];
-		strcpy(current->activity_name, in_client.c_act);
-		current->location = new char [strlen(in_client.c_locat) + 1];
-		strcpy(current->location, in_client.c_locat);
-		current->description = new char [strlen(in_client.c_desc) + 1];
-		strcpy(current->description, in_client.c_desc);
+		temp = new activitynode;
+		temp->next = current;
+		head = temp;
+		temp->time = in_client.c_time;
+		temp->activity_name = new char [strlen(in_client.c_act) + 1];
+		strcpy(temp->activity_name, in_client.c_act);
+		temp->location = new char [strlen(in_client.c_locat) + 1];
+		strcpy(temp->location, in_client.c_locat);
+		temp->description = new char [strlen(in_client.c_desc) + 1];
+		strcpy(temp->description, in_client.c_desc);
 		return 1;
 	}
-
+	//add to the list
 	previous->next = new activitynode;
 	previous = previous->next;
 	previous->next = current;
@@ -276,48 +307,59 @@ int activity_list::display_act()
 {
 	if (!head)
 		return 0;
-	activitynode * current = head;
-	while (current)
-	{
-		cout << "\n" << current->time << ":00"
-			<< "\tActivity: " << current->activity_name
-			<< "\n\tLocation: " << current->location
-			<< "\n\tDescription: " << current->description << endl;
-		current = current->next;
-	}
-	return 1;
+	int display = display_act(head);
+	return display;
+	
 }
 //Displays the activities recursively
-/*int activity_list::display_act(activitynode * head)
+int activity_list::display_act(activitynode * head)
 {
 	if (!head)
-		return 0;
+		return 1;
 	cout << "\n" << head->time << ":00"
 		<< "\tActivity: " << head->activity_name
 		<< "\n\tLocation: " << head->location
 		<< "\n\tDescription: " << head->description << endl;
 	return display_act(head->next);
-}*/
+}
 //Removes activities within a day
 int activity_list::remove_act()
 {
 	if (!head)
 		return 0;
 	activitynode * current = head;
-	while (head)
+	while (current)
 	{
+		activitynode * temp = current;
 		current = current->next;
-		//head->time = 0;
-		//delete [] head->activity_name;
-		//delete [] head->location;
-		//delete [] head->description;
-		delete head;
-		head = current;
+		temp->time = 0;
+		delete [] temp->activity_name;
+		delete [] temp->location;
+		delete [] temp->description;
+		delete temp;
 	}
+	head = nullptr;
 	return 1;
 }
 		
 //Finds a day to match and then displays the activities within the day
-int activity_list::find_act_day(char matching_activity[])
-{return 0;}
+bool activity_list::act_match(char matching_activity[])
+{
+	if (!head)
+		return false;
+	activitynode * current = head;
+	bool found = false;
+	while (current && !found)
+	{
+		if (!strcmp(current->activity_name, matching_activity))
+		{
+			found = true;
+		}
+		else
+		{
+			current = current->next;
+		}
+	}
+	return found;
+}
 

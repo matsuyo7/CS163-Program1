@@ -35,11 +35,11 @@ class activity_list
 		~activity_list();	//destructor
 		int copy_act(const client & in_client);	//add a new activity to the day by passing the needed info and returning a number for error or success
 		int display_act();	//displays the activities to be called by the travel_list
-		int find_act_day(char matching_activity[]);	//pass in the activity to find the day it has the activity and display it, return success or error
+		bool act_match(char matching_activity[]);	//pass in the activity to find the day it has the activity and display it, return success or error
 		int remove_act();
 	private:
 		activitynode * head;
-		//int display_act(activitynode * head);	//displays the activities recursively
+		int display_act(activitynode * head);	//displays the activities recursively
 };
 
 struct daynode
@@ -59,9 +59,10 @@ class travel_list
 		int add_activity(client & in_client);	//add a new activity to the day by passing the needed info and returning a number for error or success
 		bool day_match(client & in_client);	//finds a match to the day the user adds so that they can add an activity to that day or return false
 		int remove_day(char matching_day[]);	//pass in a day from the user to display all activities in that day
-		int find_act_day(char matching_activity[]);	//pass in the activity to find the day it has the activity and display it, return success or error
+		int find_act_day(char matching_day[]);	//pass in the day to find the activity and display it, return success or error
+		int find_day(char matching_act[]);	//pass in the activity to find the day and display it, return success or error
 	private:
 		daynode * head;
 		daynode * tail;
-		int display_all(daynode * head);	//displays the items recursively
+		int display_all(daynode * & head);	//displays the items recursively
 };

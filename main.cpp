@@ -12,6 +12,7 @@ void add_day(travel_list & travel, char day[]);
 void add_act(travel_list & travel, client & one_client);
 void all_display(travel_list & travel);
 void see_act(travel_list & travel, char aday[]);
+void see_day(travel_list & travel, char act[]);
 void remove_day(travel_list & travel, char rday[]);
 
 int main()
@@ -21,35 +22,44 @@ int main()
 	client one_client;
 	int option {0};
 	char day[SIZE];
-	int added_act {0};
 	char rday[SIZE];
 	char aday[SIZE];
-	char again {'y'};
+	char act[SIZE];
 
 	cout << "\n***TRAVEL PLANNING***"
 		"\nPlan your trip up to an entire week filled with events"
-		"\nand their descriptions at certain times of the day (24hr cycle)" << endl;
+		"\nand their descriptions at certain times of the day (24hr cycle)"
+	     	"\nThe activities will be in numerical order from 1hr to 24 hr" << endl;
 
 	do
 	{
 		option = menu();
+		//When user picks to add a day
 		if (option == 1)
 		{
 			add_day(travel, day);
 		}
+		//When user picks to add an activity
 		if (option == 2)
 		{
 			add_act(travel, one_client);
 		}
+		//When user picks to display all days and their activities
 		if (option == 3)
 		{
 			all_display(travel);
 		}
+		//When user picks to see activities within a day
 		if (option == 4)
 		{
 			see_act(travel, aday);
 		}
-
+		//When user pick to see a day matching the activity
+		if (option == 5)
+		{
+			see_day(travel, act);
+		}
+		//When user picks to remove a day
 		if (option == 6)
 		{
 			remove_day(travel, rday);
@@ -126,7 +136,6 @@ void add_act(travel_list & travel, client & one_client)
 		cout << "\n\nDescription of activity: ";
 		cin.get(one_client.c_desc, SIZE, '\n');
 		cin.ignore(100, '\n');
-		//activities.copy_act(one_client);
 		int added_act = travel.add_activity(one_client);
 		if (added_act == 1)
 			cout << "\nAdded activity" << endl;
@@ -155,6 +164,17 @@ void see_act(travel_list & travel, char aday[])
 	if (see == 0)
 		cout << "\nCouldn't find the day" << endl;
 }
+//Displays the day that the activity is from
+void see_day(travel_list & travel, char act[])
+{
+	cout << "\nWhat activity do you want to see the day: ";
+	cin.get(act, SIZE, '\n');
+	cin.ignore(100, '\n');
+	int see = travel.find_day(act);
+	if (see == 0)
+		cout << "\nCouldn't find the activity" << endl;
+}
+	
 //Removes a day the user picks
 void remove_day(travel_list & travel, char rday[])
 {
